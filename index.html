@@ -2,42 +2,49 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Matrix Chat - КП 2-4</title>
+    <title>Matrix Chat - КП 2-5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
-
-    <div x-data="chatApp()" class="bg-white p-6 rounded shadow-md w-full max-w-2xl">
+<body class="bg-gray-100 flex items-center justify-center p-4 min-h-screen">
+    <div x-data="chatApp()" class="bg-white rounded-lg shadow-lg flex w-full max-w-5xl overflow-hidden">
         
         <template x-if="!accessToken">
-            <div>
-                <h2 class="text-xl font-bold mb-4 text-center">Вхід у Matrix Chat</h2>
-                <input x-model="username" placeholder="Username (@login:matrix.org)" class="border p-2 w-full mb-2 rounded" />
-                <input x-model="password" type="password" placeholder="Password" class="border p-2 w-full mb-2 rounded" />
-                
-                <button @click="login()" class="bg-blue-600 text-white p-2 w-full rounded hover:bg-blue-700 transition">Увійти</button>
-                
-                <p x-text="error" class="text-red-500 mt-2 text-center text-sm font-medium"></p>
+            <div class="p-8 w-full max-w-md mx-auto">
+                <h2 class="text-2xl font-bold mb-6 text-center text-blue-600">Вхід у систему</h2>
+                <input x-model="username" placeholder="Username (@user:matrix.org)" class="border p-3 w-full mb-3 rounded" />
+                <input x-model="password" type="password" placeholder="Password" class="border p-3 w-full mb-3 rounded" />
+                <button @click="login()" class="bg-blue-600 text-white p-3 w-full rounded font-bold hover:bg-blue-700">Увійти</button>
+                <p x-text="error" class="text-red-500 mt-3 text-center"></p>
             </div>
         </template>
 
         <template x-if="accessToken">
-            <div class="flex flex-col space-y-4">
-                <h1 class="text-2xl font-bold text-green-600 text-center">Ви успішно авторизувались!</h1>
-                
-                <div class="p-3 bg-gray-200 rounded text-sm break-words border border-gray-300">
-                    <span class="font-bold">Ваш Matrix ID:</span>
-                    <span x-text="userId"></span>
+            <div class="flex w-full h-[600px]">
+                <div class="w-1/3 border-r p-4 bg-gray-50 overflow-y-auto">
+                    <h3 class="font-bold mb-4 text-lg border-b pb-2 text-blue-700">Ваші кімнати</h3>
+                    <div class="space-y-2">
+                        <template x-for="room in rooms" :key="room.room_id">
+                            <div class="p-2 bg-white border rounded shadow-sm text-sm hover:bg-blue-50 cursor-pointer">
+                                <span class="font-medium" x-text="room.name || 'Без назви'"></span>
+                                <div class="text-[10px] text-gray-400" x-text="room.room_id"></div>
+                            </div>
+                        </template>
+                    </div>
                 </div>
 
-                <div class="mt-4 p-4 border-t-2 border-blue-100 bg-blue-50 rounded">
-                    <h3 class="text-lg font-bold mb-3 text-blue-800 underline">Резюме розробника</h3>
-                    <div class="grid grid-cols-1 gap-2 text-sm text-gray-700">
-                        <p><strong>ПІБ:</strong> Любов [Твоє Прізвище]</p>
-                        <p><strong>Посада:</strong> Frontend-розробник (PWA / JavaScript)</p>
-                        <p><strong>Стек:</strong> Alpine.js, Tailwind CSS, API Integration.</p>
-                        <p><strong>Про себе:</strong> Вмію працювати з асинхронними запитами та створювати адаптивні інтерфейси під тиском.</p>
+                <div class="w-2/3 p-6 flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold mb-4">Створити нову кімнату</h2>
+                        <div class="flex gap-2">
+                            <input x-model="newRoomName" placeholder="Назва кімнати" class="border p-2 flex-grow rounded" />
+                            <button @click="createRoom()" class="bg-green-600 text-white px-4 py-2 rounded font-bold hover:bg-green-700">Створити</button>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 p-4 bg-blue-50 border border-blue-100 rounded text-sm">
+                        <p><strong>Розробник:</strong> Любов [Прізвище]</p>
+                        <p><strong>Завдання 2-5:</strong> Робота з кімнатами та списками.</p>
                     </div>
                 </div>
             </div>
@@ -47,39 +54,45 @@
     <script>
     function chatApp() {
         return {
-            username: '',
-            password: '',
-            accessToken: '',
-            userId: '',
-            error: '',
-            // Асинхронний метод для запиту до сервера [cite: 472, 494]
+            username: '', password: '', accessToken: '', userId: '', error: '',
+            rooms: [], newRoomName: '',
+            
             async login() {
                 this.error = '';
                 try {
-                    // Надсилання POST-запиту на Matrix API [cite: 474, 498]
                     const res = await fetch('https://matrix.org/_matrix/client/r0/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ 
-                            type: 'm.login.password', 
-                            user: this.username, 
-                            password: this.password 
-                        })
+                        body: JSON.stringify({ type: 'm.login.password', user: this.username, password: this.password })
                     });
-                    
                     const data = await res.json();
-                    
-                    // Обробка успішної відповіді [cite: 480, 523]
                     if (data.access_token) {
                         this.accessToken = data.access_token;
                         this.userId = data.user_id;
-                    } else {
-                        // Локалізована помилка 
-                        this.error = 'Невірний логін або пароль. Спробуйте ще раз.';
-                    }
-                } catch (e) {
-                    this.error = 'Помилка мережі. Перевірте з’єднання.';
-                }
+                        this.fetchRoomsWithNames(); // Сразу грузим комнаты
+                    } else { this.error = 'Помилка входу'; }
+                } catch (e) { this.error = 'Помилка мережі'; }
+            },
+
+            async createRoom() {
+                if (!this.newRoomName) return;
+                try {
+                    await fetch(`https://matrix.org/_matrix/client/r0/createRoom?access_token=${this.accessToken}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: this.newRoomName, visibility: 'private' })
+                    });
+                    this.newRoomName = '';
+                    this.fetchRoomsWithNames(); // Обновляем список
+                } catch (e) { console.error('Error creating room'); }
+            },
+
+            async fetchRoomsWithNames() {
+                try {
+                    const res = await fetch(`https://matrix.org/_matrix/client/r0/joined_rooms?access_token=${this.accessToken}`);
+                    const data = await res.json();
+                    this.rooms = data.joined_rooms.map(id => ({ room_id: id, name: 'Кімната ' + id.substring(0, 5) }));
+                } catch (e) { console.error('Error fetching rooms'); }
             }
         };
     }
