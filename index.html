@@ -2,40 +2,40 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Matrix Чат — КП 2-8</title>
+    <title>Matrix Чат — КП 2-9 (Адмінування)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/alpinejs" defer></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-slate-100 flex items-center justify-center min-h-screen">
     
-    <div x-data="додатокЧату()" class="bg-white shadow-xl flex w-full h-screen overflow-hidden">
+    <div x-data="додатокЧату()" class="bg-white shadow-2xl flex w-full h-screen overflow-hidden">
         
         <template x-if="!токенДоступу">
-            <div class="m-auto w-full max-w-md p-8 bg-white rounded-lg shadow-lg border border-gray-200">
-                <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Авторизація Matrix</h2>
-                <input x-model="логін" placeholder="Ім'я користувача" class="border p-3 w-full mb-3 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" />
-                <input x-model="пароль" type="password" placeholder="Пароль" class="border p-3 w-full mb-6 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" />
-                <button @click="увійти()" class="bg-blue-600 text-white p-3 w-full rounded-lg font-bold hover:bg-blue-700 transition shadow-md">Увійти в чат</button>
-                <p x-text="помилка" class="text-red-500 mt-4 text-center font-medium"></p>
+            <div class="m-auto w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border border-slate-200">
+                <h2 class="text-2xl font-bold mb-6 text-center text-slate-800">Вхід у Matrix</h2>
+                <input x-model="логін" placeholder="Ім'я користувача" class="border p-3 w-full mb-3 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none" />
+                <input x-model="пароль" type="password" placeholder="Пароль" class="border p-3 w-full mb-6 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none" />
+                <button @click="увійти()" class="bg-indigo-600 text-white p-3 w-full rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg">Увійти</button>
+                <p x-text="помилка" class="text-red-500 mt-4 text-center text-sm"></p>
             </div>
         </template>
 
         <template x-if="токенДоступу">
             <div class="flex w-full h-full">
                 
-                <div class="w-72 bg-slate-900 text-white p-4 flex flex-col shadow-2xl">
-                    <div class="flex items-center gap-2 mb-6 border-b border-slate-700 pb-4">
-                        <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                        <h3 class="font-bold text-blue-400 uppercase text-xs tracking-widest">Мої Кімнати</h3>
-                    </div>
+                <div class="w-72 bg-slate-900 text-white p-4 flex flex-col">
+                    <h3 class="font-bold text-indigo-400 uppercase text-xs tracking-widest mb-4 border-b border-slate-700 pb-2">Кімнати</h3>
                     
-                    <div class="flex-grow overflow-y-auto space-y-2">
+                    <div class="flex-grow overflow-y-auto space-y-1">
                         <template x-for="кімната in списокКімнат" :key="кімната.id">
                             <div @click="змінитиКімнату(кімната.id)" 
-                                 :class="IDкімнати === кімната.id ? 'bg-blue-600 shadow-lg scale-105' : 'hover:bg-slate-800'"
-                                 class="p-3 rounded-xl cursor-pointer transition-all duration-200 text-sm flex items-center justify-between">
-                                <span class="truncate" x-text="кімната.назва"></span>
-                                <span class="text-[10px] opacity-40">#</span>
+                                 :class="IDкімнати === кімната.id ? 'bg-indigo-600' : 'hover:bg-slate-800'"
+                                 class="p-2 rounded-lg cursor-pointer transition flex items-center justify-between group">
+                                <span class="truncate text-sm" x-text="кімната.назва"></span>
+                                <button @click.stop="покинутиКімнату(кімната.id)" 
+                                        class="text-red-400 hover:text-red-200 text-xs font-bold px-2 py-1 opacity-0 group-hover:opacity-100 transition">
+                                    × Видалити
+                                </button>
                             </div>
                         </template>
                     </div>
@@ -43,57 +43,47 @@
 
                 <div class="flex-grow flex flex-col bg-slate-50">
                     <div class="p-4 bg-white border-b flex justify-between items-center shadow-sm">
-                        <div>
-                            <h2 class="font-bold text-slate-800" x-text="IDкімнати ? 'Активний чат' : 'Оберіть кімнату для спілкування'"></h2>
-                            <p class="text-[10px] text-slate-400" x-text="IDкімнати"></p>
-                        </div>
+                        <h2 class="font-bold text-slate-800" x-text="IDкімнати ? 'Чат активний' : 'Оберіть чат'"></h2>
                         <div class="flex gap-2">
-                            <input x-model="користувачДляЗапрошення" placeholder="@user:matrix.org" class="border p-2 text-xs rounded-lg w-48 focus:border-blue-500 outline-none" />
-                            <button @click="запросити()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 transition">Запросити</button>
+                            <input x-model="користувачДляЗапрошення" placeholder="@user:matrix.org" class="border p-2 text-xs rounded-lg w-40" />
+                            <button @click="запросити()" class="bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-emerald-700">Invite</button>
                         </div>
                     </div>
 
                     <div class="flex-grow p-6 overflow-y-auto space-y-4">
                         <template x-for="повідомлення in списокПовідомлень" :key="повідомлення.event_id">
                             <div :class="повідомлення.sender === мійID ? 'flex justify-end' : 'flex justify-start'">
-                                <div :class="повідомлення.sender === мійID ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-slate-800 border rounded-bl-none'"
-                                     class="inline-block p-4 rounded-2xl max-w-md text-sm shadow-md transition-transform hover:scale-[1.02]">
-                                    <p class="leading-relaxed" x-text="повідомлення.content.body"></p>
-                                    <div class="flex items-center justify-between mt-2 gap-4">
-                                        <span class="text-[10px] font-bold uppercase opacity-60" x-text="повідомлення.sender.split(':')[0].substring(1)"></span>
-                                    </div>
+                                <div :class="повідомлення.sender === мійID ? 'bg-indigo-600 text-white' : 'bg-white border text-slate-800'"
+                                     class="p-3 rounded-2xl max-w-sm text-sm shadow-sm">
+                                    <p x-text="повідомлення.content.body"></p>
+                                    <span class="text-[9px] opacity-50 block mt-1" x-text="повідомлення.sender.split(':')[0]"></span>
                                 </div>
                             </div>
                         </template>
                     </div>
 
-                    <div class="p-5 bg-white border-t flex gap-3 shadow-inner">
-                        <input @keyup.enter="відправитиПовідомлення()" x-model="текстНовогоПовідомлення" placeholder="Напишіть щось цікаве..." class="bg-slate-100 border-none p-4 flex-grow rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
-                        <button @click="відправитиПовідомлення()" class="bg-blue-600 text-white px-8 py-4 rounded-2xl font-bold hover:bg-blue-700 transition-all active:scale-95 shadow-lg">Надіслати</button>
+                    <div class="p-4 bg-white border-t flex gap-2">
+                        <input @keyup.enter="відправитиПовідомлення()" x-model="текстНовогоПовідомлення" placeholder="Повідомлення..." class="border p-3 flex-grow rounded-xl outline-none focus:ring-2 focus:ring-indigo-500" />
+                        <button @click="відправитиПовідомлення()" class="bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-indigo-700 transition">Надіслати</button>
                     </div>
                 </div>
 
-                <div class="w-80 bg-white border-l p-6 overflow-y-auto hidden lg:block">
-                    <h3 class="font-bold mb-6 text-slate-800 text-sm border-b pb-3 uppercase tracking-widest flex items-center gap-2">
-                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        Учасники чату
-                    </h3>
-                    <div class="space-y-4">
+                <div class="w-64 bg-white border-l p-4 overflow-y-auto">
+                    <h3 class="font-bold mb-4 text-slate-700 text-xs border-b pb-2 uppercase tracking-tighter">Учасники кімнати</h3>
+                    <div class="space-y-2">
                         <template x-for="учасник in учасникиКімнати" :key="учасник.userId">
-                            <div class="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-default border border-transparent hover:border-slate-100">
-                                <div class="w-10 h-10 bg-gradient-to-tr from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-black text-sm shadow-sm" x-text="учасник.displayName[0].toUpperCase()"></div>
-                                <div class="overflow-hidden">
-                                    <p class="text-sm font-bold text-slate-800 truncate" x-text="учасник.displayName"></p>
-                                    <p class="text-[10px] text-slate-400 truncate font-mono" x-text="учасник.userId"></p>
+                            <div class="flex items-center justify-between p-2 hover:bg-slate-50 rounded-lg group">
+                                <div class="flex items-center gap-2 truncate">
+                                    <div class="w-6 h-6 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-[10px] font-bold" x-text="учасник.displayName[0].toUpperCase()"></div>
+                                    <span class="text-xs font-medium text-slate-800 truncate" x-text="учасник.displayName"></span>
                                 </div>
+                                <button @click.stop="вигнатиКористувача(учасник.userId)" 
+                                        class="text-red-500 hover:text-red-700 font-black text-lg px-1 leading-none opacity-0 group-hover:opacity-100 transition"
+                                        title="Викинути з кімнати">
+                                    ×
+                                </button>
                             </div>
                         </template>
-                    </div>
-                    
-                    <div class="mt-12 p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-                        <h4 class="text-[10px] font-bold text-slate-400 uppercase mb-2">Розробник PWA</h4>
-                        <p class="text-xs font-bold text-slate-700">Любов [Прізвище]</p>
-                        <p class="text-[10px] text-slate-500">Завдання КП 2-8 виконано</p>
                     </div>
                 </div>
             </div>
@@ -108,25 +98,24 @@
             IDкімнати: '', користувачДляЗапрошення: '', учасникиКімнати: [],
 
             async увійти() {
-                this.помилка = '';
                 try {
-                    const відповідь = await fetch('https://matrix.org/_matrix/client/r0/login', {
+                    const res = await fetch('https://matrix.org/_matrix/client/r0/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ type: 'm.login.password', user: this.логін, password: this.пароль })
                     });
-                    const дані = await відповідь.json();
+                    const дані = await res.json();
                     if (дані.access_token) {
                         this.токенДоступу = дані.access_token;
                         this.мійID = дані.user_id;
                         this.отриматиКімнати();
-                    } else { this.помилка = 'Невірні дані для входу'; }
-                } catch (e) { this.помилка = 'Помилка мережі. Спробуйте пізніше.'; }
+                    } else { this.помилка = 'Помилка входу'; }
+                } catch (e) { this.помилка = 'Мережева помилка'; }
             },
 
             async отриматиКімнати() {
-                const відповідь = await fetch(`https://matrix.org/_matrix/client/r0/joined_rooms?access_token=${this.токенДоступу}`);
-                const дані = await відповідь.json();
+                const res = await fetch(`https://matrix.org/_matrix/client/r0/joined_rooms?access_token=${this.токенДоступу}`);
+                const дані = await res.json();
                 this.списокКімнат = дані.joined_rooms.map(id => ({ id: id, назва: 'Кімната ' + id.split(':')[0].substring(1, 8) }));
             },
 
@@ -139,21 +128,54 @@
 
             async отриматиПовідомлення() {
                 if (!this.IDкімнати) return;
-                const відповідь = await fetch(`https://matrix.org/_matrix/client/r0/rooms/${this.IDкімнати}/messages?limit=30&dir=b&access_token=${this.токенДоступу}`);
-                const дані = await відповідь.json();
+                const res = await fetch(`https://matrix.org/_matrix/client/r0/rooms/${this.IDкімнати}/messages?limit=30&dir=b&access_token=${this.токенДоступу}`);
+                const дані = await res.json();
                 this.списокПовідомлень = дані.chunk.reverse();
             },
 
             async отриматиУчасників() {
                 if (!this.IDкімнати) return;
+                const res = await fetch(`https://matrix.org/_matrix/client/r0/rooms/${this.IDкімнати}/joined_members?access_token=${this.токенДоступу}`);
+                const дані = await res.json();
+                this.учасникиКімнати = Object.entries(дані.joined || {}).map(([id, info]) => ({
+                    userId: id,
+                    displayName: info.display_name || id.split(':')[0].substring(1)
+                }));
+            },
+
+            async покинутиКімнату(roomId) {
+                if (!confirm('Покинути цю кімнату?')) return;
                 try {
-                    const відповідь = await fetch(`https://matrix.org/_matrix/client/r0/rooms/${this.IDкімнати}/joined_members?access_token=${this.токенДоступу}`);
-                    const дані = await відповідь.json();
-                    this.учасникиКімнати = Object.entries(дані.joined || {}).map(([ідКористувача, інфо]) => ({
-                        userId: ідКористувача,
-                        displayName: інфо.display_name || ідКористувача.split(':')[0].substring(1)
-                    }));
-                } catch (e) { console.error('Помилка отримання учасників:', e); }
+                    const res = await fetch(`https://matrix.org/_matrix/client/r0/rooms/${encodeURIComponent(roomId)}/leave`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${this.токенДоступу}` }
+                    });
+                    if (res.ok) {
+                        this.списокКімнат = this.списокКімнат.filter(r => r.id !== roomId);
+                        if (this.IDкімнати === roomId) this.IDкімнати = '';
+                        alert('Кімнату видалено зі списку');
+                        this.отриматиКімнати();
+                    }
+                } catch (e) { alert('Помилка при виході'); }
+            },
+
+            async вигнатиКористувача(userId) {
+                if (!confirm(`Вигнати ${userId}?`)) return;
+                try {
+                    const res = await fetch(`https://matrix.org/_matrix/client/r0/rooms/${encodeURIComponent(this.IDкімнати)}/kick`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.токенДоступу}` 
+                        },
+                        body: JSON.stringify({ user_id: userId })
+                    });
+                    if (res.ok) {
+                        this.учасникиКімнати = this.учасникиКімнати.filter(m => m.userId !== userId);
+                        alert('Користувача вигнано');
+                        this.отриматиУчасників();
+                    } else { alert('Немає прав для цієї дії'); }
+                } catch (e) { alert('Помилка при видаленні користувача'); }
             },
 
             async відправитиПовідомлення() {
@@ -174,7 +196,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ user_id: this.користувачДляЗапрошення })
                 });
-                alert('Запрошення успішно надіслано!');
+                alert('Запрошено!');
                 this.користувачДляЗапрошення = '';
             }
         }
