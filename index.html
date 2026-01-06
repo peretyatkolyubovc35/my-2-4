@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Matrix Chat - КП 2-4</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs" defer></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+    <div x-data="chatApp()" class="bg-white p-6 rounded shadow-md w-full max-w-2xl">
+        
+        <template x-if="!accessToken">
+            <div>
+                <h2 class="text-xl font-bold mb-4 text-center">Вхід у Matrix Chat</h2>
+                <input x-model="username" placeholder="Username (@login:matrix.org)" class="border p-2 w-full mb-2 rounded" />
+                <input x-model="password" type="password" placeholder="Password" class="border p-2 w-full mb-2 rounded" />
+                
+                <button @click="login()" class="bg-blue-600 text-white p-2 w-full rounded hover:bg-blue-700 transition">Увійти</button>
+                
+                <p x-text="error" class="text-red-500 mt-2 text-center text-sm font-medium"></p>
+            </div>
+        </template>
+
+        <template x-if="accessToken">
+            <div class="flex flex-col space-y-4">
+                <h1 class="text-2xl font-bold text-green-600 text-center">Ви успішно авторизувались!</h1>
+                
+                <div class="p-3 bg-gray-200 rounded text-sm break-words border border-gray-300">
+                    <span class="font-bold">Ваш Matrix ID:</span>
+                    <span x-text="userId"></span>
+                </div>
+
+                <div class="mt-4 p-4 border-t-2 border-blue-100 bg-blue-50 rounded">
+                    <h3 class="text-lg font-bold mb-3 text-blue-800 underline">Резюме розробника</h3>
+                    <div class="grid grid-cols-1 gap-2 text-sm text-gray-700">
+                        <p><strong>ПІБ:</strong> Любов [Твоє Прізвище]</p>
+                        <p><strong>Посада:</strong> Frontend-розробник (PWA / JavaScript)</p>
+                        <p><strong>Стек:</strong> Alpine.js, Tailwind CSS, API Integration.</p>
+                        <p><strong>Про себе:</strong> Вмію працювати з асинхронними запитами та створювати адаптивні інтерфейси під тиском.</p>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <script>
+    function chatApp() {
+        return {
+            username: '',
+            password: '',
+            accessToken: '',
+            userId: '',
+            error: '',
+            // Асинхронний метод для запиту до сервера [cite: 472, 494]
+            async login() {
+                this.error = '';
+                try {
+                    // Надсилання POST-запиту на Matrix API [cite: 474, 498]
+                    const res = await fetch('https://matrix.org/_matrix/client/r0/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            type: 'm.login.password', 
+                            user: this.username, 
+                            password: this.password 
+                        })
+                    });
+                    
+                    const data = await res.json();
+                    
+                    // Обробка успішної відповіді [cite: 480, 523]
+                    if (data.access_token) {
+                        this.accessToken = data.access_token;
+                        this.userId = data.user_id;
+                    } else {
+                        // Локалізована помилка 
+                        this.error = 'Невірний логін або пароль. Спробуйте ще раз.';
+                    }
+                } catch (e) {
+                    this.error = 'Помилка мережі. Перевірте з’єднання.';
+                }
+            }
+        };
+    }
+    </script>
+</body>
+</html>
